@@ -1,0 +1,63 @@
+---
+// src/components/TrustStrip.astro
+
+const items = ['OAU', 'CERD', 'Mobil', 'ABInBev', 'AIChE', 'SPE', 'NSE', 'PetroSkills'];
+---
+
+<section
+  class="trust bg-slate-50 py-4 overflow-hidden"
+  aria-label="Institutions and organizations Elizabeth has worked or studied with"
+>
+  <div class="trust-viewport relative">
+    <div class="trust-track flex items-center w-max">
+      <div class="flex items-center shrink-0">
+        {items.map((name) => (
+          <>
+            <span class="font-fancy italic text-[1.05rem] tracking-wide text-ink-soft whitespace-nowrap px-7">
+              {name}
+            </span>
+            <span class="w-0.75 h-0.75 rounded-full bg-slate-200 shrink-0"></span>
+          </>
+        ))}
+      </div>
+      <!-- duplicate group — required for the seamless -50% loop, hidden from assistive tech -->
+      <div class="flex items-center shrink-0" aria-hidden="true">
+        {items.map((name) => (
+          <>
+            <span class="font-fancy italic text-[1.05rem] tracking-wide text-ink-soft whitespace-nowrap px-7">
+              {name}
+            </span>
+            <span class="w-0.75 h-0.75 rounded-full bg-slate-200 shrink-0"></span>
+          </>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust-viewport {
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+  }
+  .trust-track {
+    animation: trust-scroll 34s linear infinite;
+    will-change: transform;
+  }
+  .trust:hover .trust-track,
+  .trust-track:focus-within {
+    animation-play-state: paused;
+  }
+  @keyframes trust-scroll {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .trust-track { animation: none; }
+    .trust-viewport {
+      overflow-x: auto;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+</style>

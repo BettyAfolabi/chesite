@@ -1,0 +1,169 @@
+---
+// src/components/Experience.astro
+
+
+const roles = [
+  {
+    badge: 'CERD',
+    role: 'Final-Year Research Project',
+    org: 'CERD, Obafemi Awolowo University',
+    when: 'Jan – Jun 2024',
+    desc: "Returned to CERD to carry out final-year research project work, synthesizing iron-oxide (FeO) nanoparticles from Mangifera indica (mango) leaf extract for heavy-metal remediation.",
+    tag: 'Research & Publication',
+    publication: {
+      title: 'Heavy Metal Remediation Potentials of FeO Nanoparticles Synthesized from Mangifera Indica Leave Extracts',
+      journal: 'Applied Journal of Environmental Engineering Science',
+      date: 'Accepted 3 Jun 2025',
+      url: 'https://doi.org/10.48422/IMIST.PRSM/ajees-v11i2.55270',
+    },
+  },
+  {
+    badge: 'CERD',
+    role: 'Research Intern',
+    org: 'CERD, Obafemi Awolowo University',
+    when: 'May – Oct 2022',
+    desc: "Six-month research internship contributing to pyrolysis system process modeling in ASPEN HYSYS, alongside other energy-related research support work within the center.",
+    tag: 'Research & Simulation',
+  },
+  {
+    badge: 'AIChE',
+    role: 'Sister Chapters Coordinator',
+    org: 'AIChE OAU Student Chapter',
+    when: 'Nov 2023 - Oct 2024',
+    desc: 'Led an international partnership with an overseas AIChE student chapter to deliver cross-cultural webinars, technical events, and professional development initiatives across multiple time zones.',
+    tag: 'Leadership',
+  },
+  {
+    badge: 'AIChE',
+    role: 'Project Director',
+    org: 'AIChE OAU Student Chapter',
+    when: 'Jan 2022 - Feb 2023',
+    desc: 'Volunteered in assisting project executions and deliveries within the student chapter.',
+    tag: 'Volunteering',
+  },
+  {
+    badge: 'AIChE',
+    role: 'Student Secretary',
+    org: 'AIChE OAU Student Chapter',
+    when: 'Jun 2021 - Jun 2022',
+    desc: "Held chapter records, correspondence, and meeting documentation as part of the executive committee running the chapter's programs.",
+    tag: 'Leadership',
+  },
+  {
+    badge: 'SPE',
+    role: 'Environmental Hygiene Awareness',
+    org: 'SPE OAU Student Chapter',
+    when: '2022-2023',
+    desc: "Part of the SPE OAU team behind a campus environmental hygiene awareness initiative under the chapter's community outreach programming.",
+    tag: 'Community Outreach',
+  },
+];
+---
+
+<section id="experience" class="max-w-7xl mx-auto px-6 md:px-16 py-12 md:py-18 border-t border-slate-200" aria-labelledby="experience-heading">
+  <div class="max-w-[46ch] mb-10">
+    <p class="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.14em] uppercase text-accent mb-4">
+      <span class="w-6 h-px bg-accent inline-block"></span>
+      Experience
+    </p>
+    <h2 id="experience-heading" class="font-display font-bold tracking-tight leading-[1.15] text-[clamp(1.6rem,2.8vw,2.1rem)] m-0">
+      Research and leadership, side by side.
+    </h2>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6" data-reveal-group>
+    {roles.map((r, i) => (
+      <article
+        class="exp-reveal relative border border-slate-200 rounded-2xl p-7 bg-white"
+        data-delay={i}
+      >
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <span class="w-11 h-11 rounded-xl bg-accent-soft text-accent font-display font-bold text-xs flex items-center justify-center shrink-0">
+            {r.badge}
+          </span>
+          <span class="text-xs italic text-slate-400 whitespace-nowrap mt-1">{r.when}</span>
+        </div>
+        <h3 class="font-display font-bold text-base tracking-tight m-0 mb-0.5">{r.role}</h3>
+        <p class="text-sm text-ink-soft m-0 mb-3.5">{r.org}</p>
+        <p class="text-sm leading-relaxed text-ink-soft m-0 mb-4">{r.desc}</p>
+
+        {r.publication && (
+          <a
+            href={r.publication.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="publication-block block mb-4"
+          >
+            <span class="text-[0.7rem] font-semibold uppercase tracking-widest text-accent block mb-1">
+              Published research
+            </span>
+            <span class="text-sm font-semibold text-ink leading-snug block mb-1">
+              {r.publication.title}
+            </span>
+            <span class="text-xs text-ink-soft block">
+              {r.publication.journal} · {r.publication.date}
+            </span>
+          </a>
+        )}
+
+        <span class="inline-block text-xs font-semibold px-2.5 py-1.5 rounded-full border border-slate-200 text-ink">
+          {r.tag}
+        </span>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  /* Generic scroll-reveal pattern — copy this block into future sections
+     (Certifications, Competitions, Field Exposure) rather than reinventing it. */
+  .exp-reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .exp-reveal.is-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .exp-reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
+  }
+
+  .publication-block {
+    background: var(--color-accent-soft);
+    border-radius: 0.75rem;
+    padding: 0.85rem 1rem;
+    text-decoration: none;
+    transition: filter 0.2s ease;
+  }
+  .publication-block:hover,
+  .publication-block:focus-visible {
+    filter: brightness(0.97);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-reveal-group]').forEach((group) => {
+    const items = group.querySelectorAll<HTMLElement>('.exp-reveal');
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const delay = parseInt(el.getAttribute('data-delay') || '0', 10);
+            el.style.transitionDelay = `${delay * 0.08}s`;
+            el.classList.add('is-in');
+            obs.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    items.forEach((el) => observer.observe(el));
+  });
+</script>

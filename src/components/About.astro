@@ -1,0 +1,90 @@
+---
+// src/components/About.astro
+
+const stats = [
+  { value: 11, label: 'Certifications earned' },
+  { value: 5, label: 'Competition awards' },
+  { value: 5, label: 'Years of study' },
+];
+---
+
+<section id="about" class="max-w-7xl mx-auto px-6 md:px-16 py-16 md:py-26 grid grid-cols-1 md:grid-cols-[1fr_0.85fr] gap-12 md:gap-16 md:items-start" aria-labelledby="about-heading">
+  <div>
+    <p class="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.14em] uppercase text-accent mb-4">
+      <span class="w-6 h-px bg-accent inline-block"></span>
+      About
+    </p>
+
+    <h2 id="about-heading" class="font-display font-bold tracking-tight leading-[1.15] text-[clamp(1.6rem,2.8vw,2.1rem)] max-w-[20ch] mb-6">
+      Trained to model the process, not just describe it.
+    </h2>
+
+    <div class="text-ink-soft text-base leading-relaxed">
+      <p class="max-w-[56ch] mb-4">
+        Elizabeth is a chemical engineering graduate of Obafemi Awolowo University, where her final research
+        combined nanotechnology with pyrolysis system design in ASPEN HYSYS — the kind of work that lives at
+        the intersection of simulation, safety, and the physical realities of a process. That combination is
+        what she keeps coming back to: models are only useful if they hold up against how a plant actually behaves.
+      </p>
+      <p class="max-w-[56ch]">
+        Outside coursework, she's spent as much time in student leadership as in the lab — coordinating chapter
+        exchanges for AIChE, organizing safety awareness campaigns with SPE, and picking up a growing shelf of
+        process safety and hazard-management certifications along the way. She's currently expanding that
+        foundation into MATLAB and Python.
+      </p>
+    </div>
+  </div>
+
+  <div class="stats-grid grid grid-cols-3 md:grid-cols-1 border-t border-slate-200 md:border-t-0 mt-2" data-stats>
+    {stats.map((stat, i) => (
+      <div class:list={[
+        "py-6 pr-4 pl-0 border-b border-slate-200",
+        "md:py-0 md:pb-7 md:mb-7 md:border-b-0",
+        i === stats.length - 1 && "md:mb-0"
+      ]}>
+        <span class="stat-number font-display font-extrabold text-[clamp(2.25rem,4vw,3rem)] text-accent leading-none tracking-tight block" data-count-to={stat.value}>0</span>
+        <span class="block mt-2 text-sm text-ink-soft max-w-[18ch]">{stat.label}</span>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  // Scoped to this component's stat block only — safe even with multiple
+  // counter sections on a page, since each About instance queries its own [data-stats].
+  document.querySelectorAll('[data-stats]').forEach((statsEl) => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const numbers = statsEl.querySelectorAll<HTMLElement>('[data-count-to]');
+
+    function animateCount(el: HTMLElement) {
+      const target = parseInt(el.getAttribute('data-count-to') || '0', 10);
+      if (prefersReduced) {
+        el.textContent = String(target);
+        return;
+      }
+      const duration = 1200;
+      let start: number | null = null;
+      const easeOutExpo = (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t));
+      function step(ts: number) {
+        if (start === null) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+        el.textContent = String(Math.round(easeOutExpo(progress) * target));
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            numbers.forEach(animateCount);
+            obs.disconnect();
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(statsEl);
+  });
+</script>
