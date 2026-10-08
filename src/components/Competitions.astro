@@ -2,24 +2,14 @@
 // Competitions.astro
 // Section 7 — Competitions & Recognition
 //
-// Layout: one large "spotlight" block for ChemE-Sports 2022 (the standout result),
-// followed by two smaller compact cards for the secondary wins. This mirrors the
-// brief's instruction to give ChemE-Sports a case-study treatment while keeping
-// the smaller wins lightweight rather than padding them out to match.
-//
-// Images: drop files into src/assets/images/competitions/ and swap the
-// commented <Image /> blocks below in for the placeholder divs.
-// Use import.meta.glob() if this grows past a couple of images, per BUILD_STATUS.md.
-//
 import { Image } from 'astro:assets';
 import cheméSportsPhoto from '../assets/images/competitions/chem-e-sports-overall.jpeg';
 
 const categoryAwards = [
-  // TODO: swap in the real 4 category award names/titles from ChemE-Sports 2022.
-  '[Category award — placeholder]',
-  '[Category award — placeholder]',
-  '[Category award — placeholder]',
-  '[Category award — placeholder]',
+  '[ChemE Safety Sorceres Award(Lowest Alarms in Any Round) - 3rd Place]',
+  '[Expert Award — 1st Place Round 2]',
+  '[Master of Disaster Award — 1st Place Round 3]',
+  '[Ultimate Controller Award — 2nd Place Round 4]',
 ];
 
 const smallerWins = [
@@ -86,7 +76,7 @@ const smallerWins = [
           </h3>
           <p class="mt-3 text-ink-soft">
             Finished 2nd overall against competing chemical engineering teams, on top of four
-            individual category awards — a mix of technical, teamwork, and speed-based challenges
+            individual category awards. A mix of technical, teamwork, and speed-based challenges
             built around real process-engineering problem solving.
           </p>
         </div>

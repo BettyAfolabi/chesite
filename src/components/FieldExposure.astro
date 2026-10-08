@@ -19,21 +19,15 @@ function findImage(slug: string) {
   return match?.[1]?.default;
 }
 
-// NOTE: 9 entries per the outline. BUILD_STATUS.md flags that only 8 photos have
-// been moved into src/assets/images/field-exposure/ so far — "spe-lagos-training"
-// has no matching file yet and will render the pending-photo state below until
-// that image is dropped in. Slugs are my best guess at filenames; if the real
-// files use different names, adjust the slug strings to match.
 const exposures: (ExposureEntry & { image?: ImageMetadata })[] = [
   { slug: 'mobil-plant', title: 'Mobil Plant Visit', org: 'Mobil', date: '2019' },
   { slug: 'abinbev-brewery', title: 'ABInBev Brewery Visit', org: 'ABInBev', date: '2022' },
-  { slug: 'she-code-africa', title: 'She Code Africa Summit', org: 'She Code Africa', date: '2024' },
-  { slug: 'metis-devrel', title: 'DevRel Session', org: 'Metis', date: '2024' },
   { slug: 'ascin-conference', title: 'AScIN Conference', org: 'AScIN', date: '2022' },
+  { slug: 'environmental', title: 'Local Community Sensitization', org: 'SPE OAU', date: '2023' },
   { slug: 'yes-summit', title: 'YES Summit', org: 'YES', date: '2023' },
   { slug: 'spe-symposium', title: 'Young Professional Symposium', org: 'SPE', date: '2022' },
   { slug: 'aiche-exchange', title: 'Sister Chapter Exchange', org: 'AIChE', date: '2021' },
-  { slug: 'spe-lagos-training', title: 'Reservoir/Production Training', org: 'SPE Lagos', date: '2020' },
+  { slug: 'nsche-convention', title: 'NSChE Annual Convention', org: 'NSChE', date: '2018' },
 ].map((entry) => ({ ...entry, image: findImage(entry.slug) }));
 ---
 

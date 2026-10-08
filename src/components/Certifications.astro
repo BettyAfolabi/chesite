@@ -1,14 +1,17 @@
 ---
-import { Image } from 'astro:assets';
+// src/components/Certifications.astro
+import { Image, getImage } from 'astro:assets';
 
 interface CertEntry {
   slug: string;
   title: string;
   subtitle?: string;
   issuer: string;
-  date: string;
-  score?: string;
-  pdf?: string;
+  mono: string; // shown only if no image exists yet
+  date: string; // dd/mm/yyyy
+  score?: number;
+  pdf?: string; // add this when a PDF version exists; otherwise the image itself opens
+  span?: string; // full Tailwind class strings
 }
 
 const certImages = import.meta.glob<{ default: ImageMetadata }>(
@@ -16,159 +19,202 @@ const certImages = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true }
 );
 
-function findImage(slug: string) {
-  const match = Object.entries(certImages).find(([path]) => path.includes(slug));
-  return match?.[1]?.default;
-}
+// Optional faded photo behind the section heading.
+// Drop a file named certifications.jpg (or .png/.webp) in src/assets/images/backgrounds/
+const bgImages = import.meta.glob<{ default: ImageMetadata }>(
+  '../assets/images/backgrounds/*.{jpeg,jpg,png,webp}',
+  { eager: true }
+);
 
-const certs: (CertEntry & { image?: ImageMetadata })[] = [
-  { slug: 'hse-level-1-2', title: 'HSE Level 1&2', issuer: 'Deeprimex Consulting', date: '01/02/2021', pdf: '/certifications/hse-level-1-2.pdf' },
-  { slug: 'hse-level-3', title: 'HSE Level 3', issuer: 'Deeprimex Consulting', date: '08/02/2021', pdf: '/certifications/hse-level-3.pdf' },
-  { slug: 'sache-ela950', title: 'SAChE ELA950', subtitle: 'Process Safety Intro', issuer: 'AIChE SAChE', date: '28/02/2020', pdf: '/certifications/sache-ela950.pdf' },
-  { slug: 'sache-ela961', title: 'SAChE ELA961', subtitle: 'Toxicological Hazards', issuer: 'AIChE SAChE', date: '05/08/2020', pdf: '/certifications/sache-ela961.pdf' },
-  { slug: 'nexa-confined-space', title: 'Confined Space Entry', issuer: 'NEXA', date: '14/02/2021', score: '90%', pdf: '/certifications/confined-space-entry-cert.pdf' },
-  { slug: 'nexa-fire-safety', title: 'Fire Safety Management', issuer: 'NEXA', date: '14/02/2021', score: '86%', pdf: '/certifications/fire-safety-cert.pdf' },
-  { slug: 'linkedin-data-analytics', title: 'Data Analytics', issuer: 'LinkedIn Learning', date: '05/02/2022', pdf: '/certifications/data-analytics.pdf' },
-  { slug: 'spe-leadership', title: 'SPE Continuing Education Course', issuer: 'SPE', date: '18/08/2020', pdf: '/certifications/spe-leader.pdf' },
-  { slug: 'nsche-convention', title: 'Participation - NSChE Annual Convention', issuer: 'NSChE', date: '29/09/2018' },
-  { slug: 'nse-graduate', title: 'Graduate Member', issuer: 'Nigerian Society of Engineers', date: '23/01/2026', pdf: '/certifications/nse-graduate-member.pdf' },
-  { slug: 'nysc', title: 'NYSC CERT', issuer: 'National Youth Service Corps', date: '23/09/2026' },
-].map((cert) => ({ ...cert, image: findImage(cert.slug) }));
+const find = (map: Record<string, { default: ImageMetadata }>, key: string) =>
+  Object.entries(map).find(([path]) => path.includes(key))?.[1]?.default;
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fmt = (d: string) => {
+  const [, m, y] = d.split('/');
+  return `${MONTHS[parseInt(m, 10) - 1]} ${y}`;
+};
+
+const WIDE = 'col-span-2';
+
+const raw: CertEntry[] = [
+  { slug: 'nse-graduate', title: 'Graduate Member', subtitle: 'Nigerian Society of Engineers', issuer: 'NSE', mono: 'NSE', date: '23/01/2026', pdf: '/certifications/nse-graduate-member.pdf', span: 'col-span-2 md:row-span-2' },
+  { slug: 'nexa-confined-space', title: 'Confined Space Entry', issuer: 'NEXA', mono: 'NEXA', date: '14/02/2021', score: 90, pdf: '/certifications/confined-space-entry-cert.pdf' },
+  { slug: 'nexa-fire-safety', title: 'Fire Safety Management', issuer: 'NEXA', mono: 'NEXA', date: '14/02/2021', score: 86, pdf: '/certifications/fire-safety-cert.pdf' },
+  { slug: 'sache-ela950', title: 'SAChE ELA950', subtitle: 'Process Safety Intro', issuer: 'AIChE SAChE', mono: 'SAChE', date: '28/02/2020', pdf: '/certifications/sache-ela950.pdf' },
+  { slug: 'sache-ela961', title: 'SAChE ELA961', subtitle: 'Toxicological Hazards', issuer: 'AIChE SAChE', mono: 'SAChE', date: '05/08/2020', pdf: '/certifications/sache-ela961.pdf' },
+  { slug: 'hse-level-1-2', title: 'HSE Level 1&2', issuer: 'Deeprimex Consulting', mono: 'HSE', date: '01/02/2021', pdf: '/certifications/hse-level-1-2.pdf' },
+  { slug: 'hse-level-3', title: 'HSE Level 3', issuer: 'Deeprimex Consulting', mono: 'HSE', date: '08/02/2021', pdf: '/certifications/hse-level-3.pdf' },
+  { slug: 'linkedin-data-analytics', title: 'Data Analytics', issuer: 'LinkedIn Learning', mono: 'in', date: '05/02/2022', pdf: '/certifications/data-analytics.pdf' },
+  { slug: 'spe-leadership', title: 'SPE Continuing Education Course', issuer: 'SPE', mono: 'SPE', date: '18/08/2020', pdf: '/certifications/spe-leader.pdf' },
+  { slug: 'nsche-convention', title: 'NSChE Annual Convention', subtitle: 'Participation', issuer: 'NSChE', mono: 'NSChE', date: '29/09/2018', span: WIDE },
+  { slug: 'nysc', title: 'NYSC Certificate', issuer: 'National Youth Service Corps', mono: 'NYSC', date: '23/09/2026', span: WIDE },
+];
+
+const certs = await Promise.all(
+  raw.map(async (c) => {
+    const image = find(certImages, c.slug);
+    // PDF if there is one, otherwise a full-size optimized version of the image, so every card is viewable.
+    let href = c.pdf;
+    if (!href && image) {
+      href = (await getImage({ src: image, width: Math.min(1600, image.width) })).src;
+    }
+    return { ...c, image, href };
+  })
+);
+
+const backdrop = find(bgImages, 'certifications');
 ---
 
-<section id="certifications" class="max-w-7xl mx-auto px-6 md:px-16 py-16 md:py-26" aria-labelledby="certs-heading">
-  <p class="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.14em] uppercase text-accent mb-4">
-    <span class="w-6 h-px bg-accent inline-block"></span>
-    Certifications
-  </p>
+<section id="certifications" class="relative overflow-hidden" aria-labelledby="certs-heading">
+  {backdrop && (
+    <div class="certs-backdrop" aria-hidden="true">
+      <Image src={backdrop} alt="" widths={[640, 1024, 1600]} sizes="100vw" loading="lazy" class="size-full object-cover" />
+    </div>
+  )}
 
-  <h2 id="certs-heading" class="font-display font-bold tracking-tight leading-[1.15] text-[clamp(1.6rem,2.8vw,2.1rem)] max-w-[22ch] mb-10">
-    A working library of safety and hazard-management credentials.
-  </h2>
+  <div class="relative max-w-7xl mx-auto px-6 md:px-16 py-16 md:py-26">
+    <div class="max-w-[46ch] mb-10">
+      <p class="inline-flex items-center gap-2 font-semibold text-xs tracking-[0.14em] uppercase text-accent mb-4">
+        <span class="w-6 h-px bg-accent inline-block"></span>
+        Certifications
+      </p>
+      <h2 id="certs-heading" class="font-display font-bold tracking-tight leading-[1.15] text-[clamp(1.6rem,2.8vw,2.1rem)] m-0">
+        A working library of safety and hazard-management credentials.
+      </h2>
+    </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-5">
-    {certs.map((cert, i) => (
-      <div
-        class="cert-card exp-reveal"
-        data-delay={i}
-        tabindex="0"
-        aria-label={`${cert.title}, issued by ${cert.issuer}. Focus or hover for details.`}
-      >
-        <div class="cert-card-inner">
-          <div class="cert-face cert-front">
-            <span class="w-9 h-9 rounded-lg bg-accent-soft text-accent flex items-center justify-center mb-3">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m9 12 2 2 4-4" />
-                <circle cx="12" cy="12" r="9" />
-              </svg>
-            </span>
-            <span class="font-display font-semibold text-sm text-ink leading-snug block">{cert.title}</span>
-            {cert.subtitle && <span class="text-xs text-ink-soft mt-1 block">{cert.subtitle}</span>}
-          </div>
-
-          <div class="cert-face cert-back">
-            {cert.image ? (
-              <>
+    <ul class="certs-wall grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 list-none p-0 m-0" data-reveal-group>
+      {certs.map((cert, i) => {
+        const Tag = cert.href ? 'a' : 'div';
+        const linkProps = cert.href
+          ? { href: cert.href, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${cert.title}, ${cert.issuer}. Open certificate in a new tab.` }
+          : {};
+        const isFeature = cert.span?.includes('row-span-2');
+        return (
+          <li class={`exp-reveal ${cert.span ?? ''}`} data-delay={Math.min(i, 6)}>
+            <Tag class:list={['cert-tile group', cert.href && 'is-link']} {...linkProps}>
+              {cert.image ? (
                 <Image
                   src={cert.image}
                   alt={`${cert.title} certificate`}
-                  widths={[320, 480]}
-                  sizes="(min-width: 900px) 240px, 45vw"
+                  widths={isFeature ? [480, 800, 1200] : [320, 480, 800]}
+                  sizes={isFeature ? '(min-width: 768px) 50vw, 92vw' : '(min-width: 768px) 25vw, 46vw'}
                   loading="lazy"
-                  class="absolute inset-0 w-full h-full object-cover"
+                  class="absolute inset-0 size-full object-cover object-top transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 />
-                <div class="cert-back-overlay">
-                  <span class="text-xs uppercase tracking-widest text-white/80 font-semibold block">{cert.issuer}</span>
-                  <span class="text-sm text-white block">{cert.date}</span>
-                  {cert.score && <span class="text-sm font-semibold text-white block">{cert.score}</span>}
-                </div>
-              </>
-            ) : cert.pdf ? (
-              <div class="cert-back-placeholder">
-                <span class="text-xs uppercase tracking-widest text-accent font-semibold mb-2 block">{cert.issuer}</span>
-                <span class="text-sm text-ink block mb-1">{cert.date}</span>
-                {cert.score && <span class="text-sm font-semibold text-ink block mb-2">{cert.score}</span>}
-                <a
-                  href={cert.pdf}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="cert-pdf-link inline-flex items-center gap-1.5 text-xs font-semibold text-accent mt-1"
-                  onclick="event.stopPropagation()"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <path d="M14 2v6h6" />
-                  </svg>
-                  View certificate
-                </a>
+              ) : (
+                <div class="cert-mono" aria-hidden="true"><span>{cert.mono}</span></div>
+              )}
+
+              {cert.score && <span class="cert-score">{cert.score}%</span>}
+
+              <div class="cert-caption">
+                <p class="text-xs text-white/80 m-0">{cert.issuer} &middot; {fmt(cert.date)}</p>
+                <h3 class:list={['font-display font-bold tracking-tight leading-snug text-white m-0', isFeature ? 'text-xl md:text-3xl' : 'text-sm md:text-base']}>
+                  {cert.title}
+                </h3>
+                {cert.subtitle && <p class="text-xs text-white/80 m-0 mt-0.5">{cert.subtitle}</p>}
               </div>
-            ) : (
-              <div class="cert-back-placeholder">
-                <span class="text-xs uppercase tracking-widest text-accent font-semibold mb-2 block">{cert.issuer}</span>
-                <span class="text-sm text-ink block mb-1">{cert.date}</span>
-                {cert.score && <span class="text-sm font-semibold text-ink block">{cert.score}</span>}
-                <span class="text-[0.7rem] text-ink-soft mt-2 block">No file yet</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    ))}
+            </Tag>
+          </li>
+        );
+      })}
+    </ul>
   </div>
 </section>
 
 <style>
-  .cert-card { perspective: 1000px; aspect-ratio: 4 / 3; cursor: pointer; outline: none; }
-  .cert-card-inner {
-    position: relative; width: 100%; height: 100%;
-    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    transform-style: preserve-3d;
+  .certs-backdrop {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 26rem;
+    opacity: 0.22;
+    pointer-events: none;
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
   }
-  .cert-card:hover .cert-card-inner,
-  .cert-card:focus-visible .cert-card-inner { transform: rotateY(180deg); }
-  .cert-face {
-    position: absolute; inset: 0; backface-visibility: hidden;
-    border-radius: 1rem; border: 1px solid var(--color-hairline); overflow: hidden;
+
+  .certs-wall { grid-auto-rows: 11rem; }
+  @media (min-width: 768px) { .certs-wall { grid-auto-rows: 13rem; } }
+  .certs-wall > li { min-height: 0; }
+
+  .cert-tile {
+    position: relative;
+    display: block;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 1rem;
+    background: var(--color-ink);
+    border: 1px solid var(--color-border);
+    text-decoration: none;
   }
-  .cert-front {
-    background: var(--color-paper); padding: 1.25rem;
-    display: flex; flex-direction: column; justify-content: center;
+  .cert-tile.is-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+  .cert-caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 2.5rem 1rem 0.9rem;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.88) 0%, rgba(15, 23, 42, 0.45) 55%, transparent 100%);
   }
-  .cert-back { transform: rotateY(180deg); background: var(--color-accent-soft); }
-  .cert-back-overlay {
-    position: absolute; inset: 0; display: flex; flex-direction: column;
-    justify-content: flex-end; padding: 0.9rem;
-    background: linear-gradient(to top, rgba(15, 23, 42, 0.75) 0%, rgba(15, 23, 42, 0.15) 55%, transparent 100%);
+
+  .cert-score {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--color-accent);
+    font-family: var(--font-display, 'Inter Tight', sans-serif);
+    font-weight: 700;
+    font-size: 0.8125rem;
   }
-  .cert-back-placeholder { padding: 1.25rem; height: 100%; display: flex; flex-direction: column; justify-content: center; }
-  .cert-pdf-link { text-decoration: underline; text-underline-offset: 2px; }
-  .cert-card:focus-visible { box-shadow: 0 0 0 2px var(--color-accent); border-radius: 1rem; }
+
+  .cert-mono {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-ink) 100%);
+  }
+  .cert-mono span {
+    font-family: var(--font-display, 'Inter Tight', sans-serif);
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Scroll reveal: same pattern as Experience.astro */
   .exp-reveal {
-    opacity: 0; transform: translateY(16px);
-    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    transition-delay: calc(var(--reveal-delay, 0) * 0.08s);
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  .exp-reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .exp-reveal.is-in { opacity: 1; transform: translateY(0); }
   @media (prefers-reduced-motion: reduce) {
-    .cert-card-inner { transition: none; }
+    .exp-reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
   }
 </style>
 
 <script>
-  document.querySelectorAll<HTMLElement>('#certifications .exp-reveal').forEach((el) => {
-    const delay = el.getAttribute('data-delay');
-    if (delay) el.style.setProperty('--reveal-delay', delay);
+  document.querySelectorAll<HTMLElement>('#certifications [data-reveal-group]').forEach((group) => {
+    const items = group.querySelectorAll<HTMLElement>('.exp-reveal');
+    const observer = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const delay = parseInt(el.getAttribute('data-delay') || '0', 10);
+            el.style.transitionDelay = `${delay * 0.08}s`;
+            el.classList.add('is-in');
+            obs.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    items.forEach((el) => observer.observe(el));
   });
-  const observer = new IntersectionObserver(
-    (entries, obs) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          obs.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.15 }
-  );
-  document.querySelectorAll('#certifications .exp-reveal').forEach((el) => observer.observe(el));
 </script>
