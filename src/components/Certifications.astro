@@ -1,17 +1,17 @@
 ---
 // src/components/Certifications.astro
-import { Image, getImage } from 'astro:assets';
+
+import { Image } from 'astro:assets';
 
 interface CertEntry {
-  slug: string;
+  slug: string; 
   title: string;
   subtitle?: string;
   issuer: string;
-  mono: string; // shown only if no image exists yet
-  date: string; // dd/mm/yyyy
+  mono: string; 
+  date: string; 
   score?: number;
-  pdf?: string; // add this when a PDF version exists; otherwise the image itself opens
-  span?: string; // full Tailwind class strings
+  span?: string; 
 }
 
 const certImages = import.meta.glob<{ default: ImageMetadata }>(
@@ -19,8 +19,6 @@ const certImages = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true }
 );
 
-// Optional faded photo behind the section heading.
-// Drop a file named certifications.jpg (or .png/.webp) in src/assets/images/backgrounds/
 const bgImages = import.meta.glob<{ default: ImageMetadata }>(
   '../assets/images/backgrounds/*.{jpeg,jpg,png,webp}',
   { eager: true }
@@ -38,31 +36,20 @@ const fmt = (d: string) => {
 const WIDE = 'col-span-2';
 
 const raw: CertEntry[] = [
-  { slug: 'nse-graduate', title: 'Graduate Member', subtitle: 'Nigerian Society of Engineers', issuer: 'NSE', mono: 'NSE', date: '23/01/2026', pdf: '/certifications/nse-graduate-member.pdf', span: 'col-span-2 md:row-span-2' },
-  { slug: 'nexa-confined-space', title: 'Confined Space Entry', issuer: 'NEXA', mono: 'NEXA', date: '14/02/2021', score: 90, pdf: '/certifications/confined-space-entry-cert.pdf' },
-  { slug: 'nexa-fire-safety', title: 'Fire Safety Management', issuer: 'NEXA', mono: 'NEXA', date: '14/02/2021', score: 86, pdf: '/certifications/fire-safety-cert.pdf' },
-  { slug: 'sache-ela950', title: 'SAChE ELA950', subtitle: 'Process Safety Intro', issuer: 'AIChE SAChE', mono: 'SAChE', date: '28/02/2020', pdf: '/certifications/sache-ela950.pdf' },
-  { slug: 'sache-ela961', title: 'SAChE ELA961', subtitle: 'Toxicological Hazards', issuer: 'AIChE SAChE', mono: 'SAChE', date: '05/08/2020', pdf: '/certifications/sache-ela961.pdf' },
-  { slug: 'hse-level-1-2', title: 'HSE Level 1&2', issuer: 'Deeprimex Consulting', mono: 'HSE', date: '01/02/2021', pdf: '/certifications/hse-level-1-2.pdf' },
-  { slug: 'hse-level-3', title: 'HSE Level 3', issuer: 'Deeprimex Consulting', mono: 'HSE', date: '08/02/2021', pdf: '/certifications/hse-level-3.pdf' },
-  { slug: 'linkedin-data-analytics', title: 'Data Analytics', issuer: 'LinkedIn Learning', mono: 'in', date: '05/02/2022', pdf: '/certifications/data-analytics.pdf' },
-  { slug: 'spe-leadership', title: 'SPE Continuing Education Course', issuer: 'SPE', mono: 'SPE', date: '18/08/2020', pdf: '/certifications/spe-leader.pdf' },
+  { slug: 'nse-graduate', title: 'Graduate Member', subtitle: 'Nigerian Society of Engineers', issuer: 'NSE', mono: 'NSE', date: '23/01/2026', span: 'col-span-2 md:row-span-2' },
+  { slug: 'confined-space-entry', title: 'Confined Space Entry', issuer: 'NEXA', mono: 'NEXA', date: '14/02/2021', score: 90 },
+  { slug: 'fire-safety-cert', title: 'Fire Safety Management', issuer: 'NEXA', mono: 'NEXA', date: '14/02/2021', score: 86 },
+  { slug: 'sache-ela950', title: 'SAChE ELA950', subtitle: 'Process Safety Intro', issuer: 'AIChE SAChE', mono: 'SAChE', date: '28/02/2020' },
+  { slug: 'sache-ela961', title: 'SAChE ELA961', subtitle: 'Toxicological Hazards', issuer: 'AIChE SAChE', mono: 'SAChE', date: '05/08/2020' },
+  { slug: 'hse-level-1-2', title: 'HSE Level 1&2', issuer: 'Deeprimex Consulting', mono: 'HSE', date: '01/02/2021' },
+  { slug: 'hse-level-3', title: 'HSE Level 3', issuer: 'Deeprimex Consulting', mono: 'HSE', date: '08/02/2021' },
+  { slug: 'data-analytics', title: 'Data Analytics', issuer: 'LinkedIn Learning', mono: 'in', date: '05/02/2022' },
+  { slug: 'spe-leadership', title: 'SPE Continuing Education Course', issuer: 'SPE', mono: 'SPE', date: '18/08/2020' },
   { slug: 'nsche-convention', title: 'NSChE Annual Convention', subtitle: 'Participation', issuer: 'NSChE', mono: 'NSChE', date: '29/09/2018', span: WIDE },
   { slug: 'nysc', title: 'NYSC Certificate', issuer: 'National Youth Service Corps', mono: 'NYSC', date: '23/09/2026', span: WIDE },
 ];
 
-const certs = await Promise.all(
-  raw.map(async (c) => {
-    const image = find(certImages, c.slug);
-    // PDF if there is one, otherwise a full-size optimized version of the image, so every card is viewable.
-    let href = c.pdf;
-    if (!href && image) {
-      href = (await getImage({ src: image, width: Math.min(1600, image.width) })).src;
-    }
-    return { ...c, image, href };
-  })
-);
-
+const certs = raw.map((c) => ({ ...c, image: find(certImages, c.slug) }));
 const backdrop = find(bgImages, 'certifications');
 ---
 
@@ -86,22 +73,18 @@ const backdrop = find(bgImages, 'certifications');
 
     <ul class="certs-wall grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 list-none p-0 m-0" data-reveal-group>
       {certs.map((cert, i) => {
-        const Tag = cert.href ? 'a' : 'div';
-        const linkProps = cert.href
-          ? { href: cert.href, target: '_blank', rel: 'noopener noreferrer', 'aria-label': `${cert.title}, ${cert.issuer}. Open certificate in a new tab.` }
-          : {};
         const isFeature = cert.span?.includes('row-span-2');
         return (
           <li class={`exp-reveal ${cert.span ?? ''}`} data-delay={Math.min(i, 6)}>
-            <Tag class:list={['cert-tile group', cert.href && 'is-link']} {...linkProps}>
+            <figure class="cert-tile group m-0">
               {cert.image ? (
                 <Image
                   src={cert.image}
-                  alt={`${cert.title} certificate`}
-                  widths={isFeature ? [480, 800, 1200] : [320, 480, 800]}
+                  alt={`${cert.title}, ${cert.issuer}`}
+                  widths={isFeature ? [480, 800] : [320, 480, 640]}
                   sizes={isFeature ? '(min-width: 768px) 50vw, 92vw' : '(min-width: 768px) 25vw, 46vw'}
                   loading="lazy"
-                  class="absolute inset-0 size-full object-cover object-top transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                  class="absolute inset-0 size-full object-cover object-center transition-transform duration-700 group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 />
               ) : (
                 <div class="cert-mono" aria-hidden="true"><span>{cert.mono}</span></div>
@@ -109,18 +92,22 @@ const backdrop = find(bgImages, 'certifications');
 
               {cert.score && <span class="cert-score">{cert.score}%</span>}
 
-              <div class="cert-caption">
+              <figcaption class="cert-caption">
                 <p class="text-xs text-white/80 m-0">{cert.issuer} &middot; {fmt(cert.date)}</p>
                 <h3 class:list={['font-display font-bold tracking-tight leading-snug text-white m-0', isFeature ? 'text-xl md:text-3xl' : 'text-sm md:text-base']}>
                   {cert.title}
                 </h3>
                 {cert.subtitle && <p class="text-xs text-white/80 m-0 mt-0.5">{cert.subtitle}</p>}
-              </div>
-            </Tag>
+              </figcaption>
+            </figure>
           </li>
         );
       })}
     </ul>
+
+    <p class="text-sm text-ink-soft mt-8 mb-0">
+      Original certificates are available on request. <a href="#contact" class="text-accent font-semibold underline underline-offset-2">Get in touch</a>.
+    </p>
   </div>
 </section>
 
@@ -147,9 +134,7 @@ const backdrop = find(bgImages, 'certifications');
     border-radius: 1rem;
     background: var(--color-ink);
     border: 1px solid var(--color-border);
-    text-decoration: none;
   }
-  .cert-tile.is-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
 
   .cert-caption {
     position: absolute;
